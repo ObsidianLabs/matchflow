@@ -2,7 +2,7 @@ const { Conflux } = require('js-conflux-sdk')
 const MatchFlowClient = require('matchflow')
 
 const cfx = new Conflux({
-  url: 'http://testnet-jsonrpc.conflux-chain.org:12537',
+  url: 'http://mainnet-jsonrpc.conflux-chain.org:12537',
   defaultGasPrice: 100,
   defaultGas: 1000000,
   //logger: console
@@ -12,8 +12,6 @@ const privateKey = '0x1f3e016e5c274425f968b5dc99ef04395f159ece3b727f701af56a7a32
 const account = cfx.Account(privateKey)
 
 async function main() {
-  // await cfx.getStatus().then(console.log)
-
   const matchflow = new MatchFlowClient({ cfx, network: 'testnet' })
 
   // Load currency list
