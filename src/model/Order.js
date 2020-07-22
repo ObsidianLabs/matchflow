@@ -127,7 +127,7 @@ class Order {
       domain: {
         name: 'Boomflow',
         version: '1.0',
-        chainId: 1,
+        chainId: 2,
         verifyingContract: await this.client.common.boomflow()
       },
       message
