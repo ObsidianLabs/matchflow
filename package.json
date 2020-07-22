@@ -1,0 +1,29 @@
+{
+  "name": "matchflow",
+  "version": "0.1.0",
+  "description": "JavaScript SDK for Conflux DEX MatchFlow",
+  "author": "Phil",
+  "license": "MIT",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ObsidianLabs/matchflow.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+  },
+  "dependencies": {
+    "bignumber.js": "^9.0.0",
+    "cfx-sig-util": "^2.0.3",
+    "lodash": "^4.17.19",
+    "superagent": "^5.1.0"
+  },
+  "peerDependencies": {
+    "js-conflux-sdk": "^0.13.4"
+  },
+  "devDependencies": {
+    "prettier": "1.19.1"
+  }
+}

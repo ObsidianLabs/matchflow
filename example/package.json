@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "js-conflux-sdk": "^0.13.4",
+    "matchflow": "file:.."
+  }
+}
