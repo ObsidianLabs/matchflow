@@ -20,20 +20,6 @@ class Currency {
     this.minimumWithdrawAmount = minimumWithdrawAmount;
     this.client = client;
   }
-
-  get Contract () {
-    return this.client.cfx.Contract({
-      address: this.contractAddress,
-      abi: CRCL.abi
-    });
-  }
-
-  get TokenContract () {
-    return this.client.cfx.Contract({
-      address: this.tokenAddress,
-      abi: ERC777.abi
-    });
-  }
 }
 
 module.exports = Currency;

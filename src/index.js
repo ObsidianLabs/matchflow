@@ -11,7 +11,7 @@ const {
 } = require('./api')
 
 class MatchFlowClient {
-  constructor({ cfx, network = 'testnet', ...rest }) {
+  constructor({ network = 'testnet', ...rest }) {
     let url
     if (network === 'mainnet') {
       url = 'https://api.matchflow.io'
@@ -21,7 +21,6 @@ class MatchFlowClient {
       throw new Error('Invalid network.')
     }
 
-    this.cfx = cfx
     this.provider = this.setProvider(url, rest);
     this._account = new ApiAccount(this, rest);
     this._common = new ApiCommon(this, rest);

@@ -22,20 +22,24 @@ const order = [
   { name: 'takerFeePercentage', type: 'uint256' },
 ]
 
-class Order {
+class RemoteOrder {
   constructor({
-    address,
-    product,
+    id,
+    clientOrderId,
+    productId,
     amount,
     price,
     type,
     side,
     feeAddress,
     feeRateMaker,
-    feeRateTaker
+    feeRateTaker,
+    timestamp,
+    ...rest
   }, client) {
-    this.address = address;
-    this.product = product;
+    this.id = id;
+    this.clientOrderId = clientOrderId;
+    this.productId = productId;
     this.amount = amount;
     this.price = price;
     this.type = type;
@@ -43,75 +47,22 @@ class Order {
     this.feeAddress = feeAddress;
     this.feeRateMaker = feeRateMaker;
     this.feeRateTaker = feeRateTaker;
+    this.timestamp = timestamp;
+    this.rest = rest;
     this.client = client;
   }
 
-  static Buy(address, product, { amount }, client) {
-    return new Order({
-      address,
-      product,
-      amount,
-      price: '0',
-      type: 'Market',
-      side: 'Buy',
-      feeAddress: address,
-      feeRateMaker: 0,
-      feeRateTaker: 0.0005
-    }, client)
-  }
-
-  static LimitBuy(address, product, { price, amount }, client) {
-    return new Order({
-      address,
-      product,
-      amount,
-      price,
-      type: 'Limit',
-      side: 'Buy',
-      feeAddress: address,
-      feeRateMaker: 0,
-      feeRateTaker: 0.0005
-    }, client)
-  }
-
-  static Sell(address, product, { amount }, client) {
-    return new Order({
-      address,
-      product,
-      amount,
-      price: '0',
-      type: 'Market',
-      side: 'Sell',
-      feeAddress: address,
-      feeRateMaker: 0,
-      feeRateTaker: 0.0005
-    }, client)
-  }
-
-  static LimitSell(address, product, { price, amount }, client) {
-    return new Order({
-      address,
-      product,
-      amount,
-      price,
-      type: 'Limit',
-      side: 'Sell',
-      feeAddress: address,
-      feeRateMaker: 0,
-      feeRateTaker: 0.0005
-    }, client)
-  }
-
-  async getTypedData(timestamp) {
-    const baseCurrency = await this.product.baseCurrency()
-    const quoteCurrency = await this.product.quoteCurrency()
-    const message = {
-      userAddress: this.address,
+  async getTypedData(account, timestamp) {
+    const product = await this.client.product.getById(this.productId)
+    const baseCurrency = await product.baseCurrency()
+    const quoteCurrency = await product.quoteCurrency()
+    const orderData = {
+      userAddress: account.address,
       amount: BN(this.amount).times(BN(1e18)).toFixed(),
       price: this.type === 'Limit' ? BN(this.price).times(BN(1e18)).toFixed() : 0,
       orderType: this.type === 'Limit' ? 0 : 1,
       side: this.side === 'Buy',
-      salt: timestamp,
+      salt: this.timestamp,
       baseAssetAddress: baseCurrency.contractAddress,
       quoteAssetAddress: quoteCurrency.contractAddress,
       feeAddress: this.feeAddress,
@@ -121,36 +72,41 @@ class Order {
     const typedData = {
       types: {
         EIP712Domain,
+        CancelRequest: [
+          { name: 'order', type: 'Order' },
+          { name: 'nonce', type: 'uint256' },
+        ],
         Order: order
       },
-      primaryType: 'Order',
+      primaryType: 'CancelRequest',
       domain: {
         name: 'Boomflow',
         version: '1.0',
         chainId: 2,
         verifyingContract: await this.client.common.boomflow()
       },
-      message
+      message: {
+        order: orderData,
+        nonce: timestamp
+      }
     }
     return typedData
   }
 
   async sign(account) {
     const timestamp = new Date().getTime()
-    const data = await this.getTypedData(timestamp)
+    const data = await this.getTypedData(account, timestamp)
     const signature = sigUtil.signTypedData_v4(Buffer.from(account.privateKey.slice(2), 'hex'), { data })
     return {
-      ...pick(this, ['address', 'type', 'side', 'price', 'amount', 'feeAddress', 'feeRateTaker', 'feeRateMaker']),
-      product: this.product.name,
       timestamp,
       signature,
     }
   }
 
-  async place(account) {
-    const signedOrder = await this.sign(account)
-    return this.client.order.place(signedOrder)
+  async cancel (account) {
+    const signature = await this.sign(account)
+    return this.client.order.cancel(this.id, signature)
   }
 }
 
-module.exports = Order;
+module.exports = RemoteOrder;

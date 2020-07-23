@@ -25,6 +25,11 @@ class ApiProduct {
     return new Product(result, this.client);
   }
 
+  async getById(productId) {
+    const list = await this.list();
+    return list.items.find(item => item.id === productId);
+  }
+
   // List daily limit of specified product name.
   async dailyLimit(name) {
     const result = await this.client.call(`/products/dailylimits/${name}`);
