@@ -14,6 +14,12 @@ class ApiAccount {
     const result = await this.client.call(`/accounts/${address}?offset=${offset}&limit=${limit}`);
     return result;
   }
+
+  // Withdraw
+  async withdraw(body) {
+    const result = await this.client.call(`/accounts/withdraw`, 'POST', body);
+    return result
+  }
 }
 
 module.exports = ApiAccount;
