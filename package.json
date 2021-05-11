@@ -17,7 +17,7 @@
   "dependencies": {
     "bignumber.js": "^9.0.0",
     "cfx-sig-util": "^2.0.3",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "superagent": "^5.1.0"
   },
   "peerDependencies": {
